@@ -18,11 +18,14 @@ class Player
         enum Dir {UP, DOWN, LEFT, RIGHT, STOP};  // This is the direction state
 
         Player(GameMechs* thisGMRef);
+        Player(const Player &other);
+        Player &operator=(const Player &other);
         ~Player();
 
         objPos getPlayerPos() const; // Upgrade this in iteration 3.       
         void updatePlayerDir();
         void movePlayer();
+
 
         // More methods to be added here
 
