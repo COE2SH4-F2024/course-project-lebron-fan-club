@@ -11,10 +11,14 @@ class objPosArrayList
         objPos* aList;
         int listSize;
         int arrayCapacity;
+        int sizeArray;
 
     public:
         objPosArrayList();
+        objPosArrayList(int size);
         ~objPosArrayList();
+        objPosArrayList(const objPosArrayList &other);
+        objPosArrayList &operator=(const objPosArrayList &other);
 
         int getSize() const;
         void insertHead(objPos thisPos);

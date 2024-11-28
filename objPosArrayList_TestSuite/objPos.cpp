@@ -1,5 +1,5 @@
 #include "objPos.h"
-
+#include <iostream>
 objPos::objPos()
 {
     pos = new Pos;
@@ -62,4 +62,27 @@ char objPos::getSymbolIfPosEqual(const objPos* refPos) const
         return symbol;
     else
         return 0;
+}
+
+objPos::~objPos()
+{
+    delete[] pos;
+}
+objPos& objPos::operator=(const objPos& other)
+{
+    if(this != &other)
+    {
+        this->symbol = other.symbol;
+        this->pos->x = other.pos->x;
+        this->pos->y = other.pos->y;
+    }
+    return *this;
+    
+}
+objPos::objPos(const objPos &other)
+{
+    pos = new Pos;
+    symbol = other.symbol;
+    pos->x = other.pos->x;
+    pos->y = other.pos->y;
 }
