@@ -6,7 +6,7 @@ Player::Player(GameMechs* thisGMRef)
 {
     playerPos.pos->x = 5;
     playerPos.pos->y = 10;
-    playerPos.symbol = '*';
+    playerPos.symbol = '^';
     mainGameMechsRef = thisGMRef;
     myDir = STOP;
     
@@ -38,26 +38,29 @@ void Player::updatePlayerDir()
                 case 'w':
                     if(myDir != DOWN)
                     {
-
                         myDir = UP;
+                        playerPos.symbol = '^';
                     }
                     break;
                 case 'a':
                     if(myDir != RIGHT)
                     {
                         myDir = LEFT;
+                        playerPos.symbol = '<';
                     }
                     break;
                 case 's':
                     if(myDir != UP)
                     {
                         myDir = DOWN;
+                        playerPos.symbol = 'v';
                     }
                     break;
                 case 'd':
                     if(myDir != LEFT)
                     {
                         myDir = RIGHT;
+                        playerPos.symbol = '>';
                     }
                     break;
             }

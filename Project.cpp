@@ -3,6 +3,7 @@
 #include "objPos.h"
 #include "GameMechs.h"
 #include "Player.h"
+#include "Food.h"
 
 using namespace std;
 
@@ -19,7 +20,7 @@ void CleanUp(void);
 
 GameMechs *Game;
 Player *p;
-
+Food *f;
 
 int main(void)
 {
@@ -44,7 +45,8 @@ void Initialize(void)
     MacUILib_init();
     MacUILib_clearScreen();
     Game = new GameMechs(10,20);
-    p= new Player(Game);
+    p = new Player(Game);
+    f = new Food();
     
     
 }
@@ -65,14 +67,18 @@ void RunLogic(void)
     {
         Game->setExitTrue();
     }
-    else if(Game->getInput() == 32)
+    if(Game->getInput() == 32)
     {
         Game->setLoseFlag();
     }
-    else if(Game->getInput()==109)
+    if(Game->getInput()==109)
     {
         Game->incrementScore();
 
+    }
+    if(Game->getInput() == 102)
+    {
+        f->generateFood(p->getPlayerPos());
     }
     
     if(!Game->getExitFlagStatus() && !Game->getLoseFlagStatus())
@@ -99,8 +105,14 @@ void DrawScreen(void)
             
             if(i==p->getPlayerPos().pos->x && j ==p->getPlayerPos().pos->y)
             {
+                
                 gameboard[i][j] = p->getPlayerPos().symbol;
             }
+            else if(i == f->getFoodPos().pos->x && j == f->getFoodPos().pos->y)
+            {
+                gameboard[i][j] = f->getFoodPos().symbol;
+            }
+           
             else if(i == 0 || i == 9)
             {
                 gameboard[i][j] = '#';
@@ -153,4 +165,7 @@ void CleanUp(void)
     MacUILib_clearScreen();    
 
     MacUILib_uninit();
+    delete[] Game;
+    delete[] p;
+    delete[] f;
 }

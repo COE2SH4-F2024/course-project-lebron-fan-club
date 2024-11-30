@@ -1,5 +1,4 @@
 #include "objPos.h"
-#include <iostream>
 objPos::objPos()
 {
     pos = new Pos;
