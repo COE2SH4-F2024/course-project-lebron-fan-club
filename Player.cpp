@@ -18,14 +18,14 @@ Player::Player(GameMechs* thisGMRef, Food* thisFood)
    rowNums = mainGameMechsRef->getBoardWidth();
    colNums = mainGameMechsRef->getBoardHeight();
 
-   // Initialize player position (snake starting position in the middle)
+   // Snake start pos
    int startX = rowNums / 2;
    int startY = colNums / 2;
 
    char headSymbol = '@';
    char bodySymbol = '+';
 
-   // Create the initial snake with length 2
+   // Snake starts with length 2
    for (int i = 0; i < 2; i++)
    {
        player->insertHead(objPos(startX - i, startY, (i == 0) ? headSymbol : bodySymbol));
@@ -76,16 +76,16 @@ Player& Player::operator=(const Player& pp)
    return *this;
 }
 
-// Get the player's position list
+// Get the player pos list
 objPosArrayList* Player::getPlayerPos() const
 {
    return player;
 }
 
-// Update the player's direction based on input
+// Update player direction based on input
 void Player::updatePlayerDir()
 {
-   if (mainGameMechsRef->getUserInput() != 0) // Check if there's valid input
+   if (mainGameMechsRef->getUserInput() != 0) // Check if theres input
    {
        switch (mainGameMechsRef->getUserInput())
        {
@@ -109,9 +109,9 @@ void Player::movePlayer()
    int x = player->getHeadElement().pos->x;
    int y = player->getHeadElement().pos->y;
 
-   // Remove the head and add it as part of the body
+   // Remove head and add as body
    player->removeHead();
-   player->insertHead(objPos(x, y, bodysymbol)); // Make the head a body segment
+   player->insertHead(objPos(x, y, bodysymbol));
 
    // Update the head position based on direction
    switch (myDir)
@@ -120,10 +120,10 @@ void Player::movePlayer()
    case DOWN:  x++; break;
    case LEFT:  y--; break;
    case RIGHT: y++; break;
-   default:    break; // No movement
+   default:    break; 
    }
 
-   // Wraparound logic
+   // Wraparound 
    if (x > rowNums - 2) x = 1;
    if (x < 1) x = rowNums - 2;
    if (y > colNums - 2) y = 1;
@@ -142,7 +142,7 @@ void Player::movePlayer()
    }
    else
    {
-       player->removeTail(); // Remove tail if no food is eaten
+       player->removeTail(); // Remove tail if no food eaten
    }
 
    // Check for self-collision
@@ -158,7 +158,7 @@ void Player::movePlayer()
    }
 }
 
-// Check if the player consumes food
+// Check if food is consumed
 bool Player::checkFoodConsumption()
 {
    objPos head = player->getHeadElement();
@@ -173,19 +173,18 @@ bool Player::checkFoodConsumption()
    return false;
 }
 
-// Increase the player's length
+// Increase the snake length
 void Player::increasePlayerLength()
 {
-   // Add a new tail segment
    objPos newTail = player->getTailElement();
    player->insertTail(newTail);
 }
 
-// Check if the player collides with itself
+// Check if the snake eat itself
 bool Player::checkselfcollision()
 {
    objPos head = player->getHeadElement();
-   for (int i = 2; i < player->getSize(); i++) // Start from index 1 to skip the head
+   for (int i = 2; i < player->getSize(); i++) 
    {
        objPos segment = player->getElement(i);
        if (head.pos->x == segment.pos->x && head.pos->y == segment.pos->y)
@@ -196,13 +195,13 @@ bool Player::checkselfcollision()
    return false;
 }
 
-// Get the player's speed
+// Get speed
 int Player::getSpeed() const
 {
    return speed;
 }
 
-// Set the player's speed
+// Set speed
 void Player::setSpeed(int s)
 {
    if (s >= 1 && s <= 5)
@@ -211,7 +210,6 @@ void Player::setSpeed(int s)
    }
 }
 
-// Get the food reference
 Food* Player::getFoodlist() const
 {
    return foodlist;
