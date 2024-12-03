@@ -1,171 +1,177 @@
 #include <iostream>
 #include "MacUILib.h"
 #include "objPos.h"
+#include "objPosArrayList.h"
+#include "Food.h"
 #include "GameMechs.h"
 #include "Player.h"
-#include "Food.h"
 
 using namespace std;
 
 #define DELAY_CONST 100000
 
-//bool exitFlag;
+// Global Variables
+GameMechs* gameMechanics = nullptr;
+Food* food = nullptr;
+Player* player = nullptr;
+bool exitFlag = false;
 
-void Initialize(void);
-void GetInput(void);
-void RunLogic(void);
-void DrawScreen(void);
-void LoopDelay(void);
-void CleanUp(void);
+// Function Prototypes
+void Initialize();
+void GetInput();
+void RunLogic();
+void DrawScreen();
+void LoopDelay();
+void CleanUp();
 
-GameMechs *Game;
-Player *p;
-Food *f;
-
-int main(void)
+int main()
 {
-
     Initialize();
 
-    while(!Game->getExitFlagStatus())  
+    // Main game loop
+    while (!exitFlag && !gameMechanics->hasLostGame() && !gameMechanics->hasWonGame())  
     {
         GetInput();
         RunLogic();
         DrawScreen();
         LoopDelay();
+        exitFlag = gameMechanics->hasExitedGame();
     }
 
     CleanUp();
-
+    return 0;
 }
 
-
-void Initialize(void)
+void Initialize()
 {
     MacUILib_init();
     MacUILib_clearScreen();
-    Game = new GameMechs(10,20);
-    p = new Player(Game);
-    f = new Food();
-    
-    
+
+    // Initialize game components
+    gameMechanics = new GameMechs(15, 30); // Board size: 15x30
+    food = new Food();
+    player = new Player(gameMechanics, food);
+
+    // Generate initial food
+    food->generateFood(*player->getPlayerPos(), gameMechanics->getBoardWidth(), gameMechanics->getBoardHeight());
+
+    exitFlag = false;
 }
 
-void GetInput(void)
+void GetInput()
 {
-    
-    if(MacUILib_hasChar() && MacUILib_hasChar() != 9)
+    if (MacUILib_hasChar())
+    {
+        // Get input and update direction
+        gameMechanics->setUserInput(MacUILib_getChar());
+        player->updatePlayerDir();
+        gameMechanics->resetUserInput();
+    }
+}
+
+void RunLogic()
+{
+    // Move player and handle game logic
+    player->movePlayer();
+}
+
+void DrawScreen()
+{
+    MacUILib_clearScreen();
+
+    // Create board array
+    char board[gameMechanics->getBoardWidth()][gameMechanics->getBoardHeight()] = {};
+
+    for (int i = 0; i < gameMechanics->getBoardWidth(); i++)
+    {
+        for (int j = 0; j < gameMechanics->getBoardHeight(); j++)
         {
-            Game->setInput(MacUILib_getChar());  
-        }
-   
-}
-
-void RunLogic(void)
-{
-    if(Game->getInput() == 8)
-    {
-        Game->setExitTrue();
-    }
-    if(Game->getInput() == 32)
-    {
-        Game->setLoseFlag();
-    }
-    if(Game->getInput()==109)
-    {
-        Game->incrementScore();
-
-    }
-    if(Game->getInput() == 102)
-    {
-        f->generateFood(p->getPlayerPos());
-    }
-    
-    if(!Game->getExitFlagStatus() && !Game->getLoseFlagStatus())
-    {
-        p->updatePlayerDir();
-        p->movePlayer();
-    }
-    
-    
-    
-}
-
-void DrawScreen(void)
-{
-    MacUILib_clearScreen(); 
-    
-    char gameboard[Game->getBoardSizeX()][Game->getBoardSizeY()];
-    
-    
-    for(int i = 0; i < Game->getBoardSizeX();i++)
-    {
-        for(int j = 0;j<Game->getBoardSizeY();j++)
-        {
-            
-            if(i==p->getPlayerPos().pos->x && j ==p->getPlayerPos().pos->y)
+            // Draw borders
+            if (i == 0 || i == gameMechanics->getBoardWidth() - 1 || j == 0 || j == gameMechanics->getBoardHeight() - 1)
             {
-                
-                gameboard[i][j] = p->getPlayerPos().symbol;
-            }
-            else if(i == f->getFoodPos().pos->x && j == f->getFoodPos().pos->y)
-            {
-                gameboard[i][j] = f->getFoodPos().symbol;
-            }
-           
-            else if(i == 0 || i == 9)
-            {
-                gameboard[i][j] = '#';
+                board[i][j] = '#';
             }
             else
             {
-                if(j == 0 || j == 19)
+                board[i][j] = ' '; // Empty space
+            }
+
+            // Draw player
+            for (int k = 0; k < player->getPlayerPos()->getSize(); k++)
+            {
+                if (i == player->getPlayerPos()->getElement(k).pos->x && j == player->getPlayerPos()->getElement(k).pos->y)
                 {
-                    gameboard[i][j] = '#';
+                    board[i][j] = player->getPlayerPos()->getElement(k).symbol;
                 }
-                else
+            }
+
+            // Draw food
+            for (int k = 0; k < FOOD_SPAWN_CAP; k++)
+            {
+                if (i == food->getFoodPos(k).pos->x && j == food->getFoodPos(k).pos->y)
                 {
-                    gameboard[i][j] = ' ';
+                    // Oscillate special food
+                    if (k == 3 && food->specialfoodcheck())
+                    {
+                        board[i][j] = food->getfoodoscillator() ? food->getspecial() : food->getnormal();
+                        food->switchoscillator();
+                    }
+                    else
+                    {
+                        board[i][j] = food->getFoodPos(k).getSymbol();
+                    }
                 }
             }
         }
-        
-
     }
-    
-    
-    
-    
-    
-    for(int i = 0; i < Game->getBoardSizeX();i++)
+
+    // Print the board
+    for (int i = 0; i < gameMechanics->getBoardWidth(); i++)
     {
-        for(int j = 0;j<Game->getBoardSizeY();j++)
-        {           
-            MacUILib_printf("%c",gameboard[i][j]);
-            
+        for (int j = 0; j < gameMechanics->getBoardHeight(); j++)
+        {
+            MacUILib_printf("%c", board[i][j]);
         }
         MacUILib_printf("\n");
     }
-    MacUILib_printf("Score: %d",Game->getScore());
-    if(Game->getLoseFlagStatus()==true)
+
+    // Display messages
+    if (!gameMechanics->hasLostGame() && !gameMechanics->hasExitedGame() && !gameMechanics->hasWonGame())
     {
-        MacUILib_printf("\nYou Lose!");
+        MacUILib_printf("Current Score: %d\n", gameMechanics->getCurrentScore());
+        MacUILib_printf("Control the snake with 'W', 'A', 'S', 'D'.\n");
+        MacUILib_printf("Special blinking food grants bonus points!\n");
     }
-    
+    else if (gameMechanics->hasLostGame())
+    {
+        MacUILib_printf("Oh no! You lost the game. Better luck next time!\n");
+        MacUILib_printf("Your final score is: %d\n", gameMechanics->getCurrentScore());
+    }
+    else if (gameMechanics->hasWonGame())
+    {
+        MacUILib_printf("You did it! Victory is yours!\n");
+        MacUILib_printf("Amazing job! Your final score: %d\n", gameMechanics->getCurrentScore());
+    }
+    else if (gameMechanics->hasExitedGame())
+    {
+        MacUILib_printf("You chose to exit. Thanks for playing!\n");
+    }
+}
+void LoopDelay(void){
+    MacUILib_Delay(DELAY_CONST/player -> getSpeed());
 }
 
-void LoopDelay(void)
+void CleanUp()
 {
-    MacUILib_Delay(DELAY_CONST); // 0.1s delay
-}
+    int finalScore = gameMechanics->getCurrentScore();
+    MacUILib_printf("Thank you for playing the Snake game!\n");
+    MacUILib_printf("Your final score: %d\n", finalScore);
 
+    // Free resources
+    delete gameMechanics;
+    delete food;
+    delete player;
 
-void CleanUp(void)
-{
-    MacUILib_clearScreen();    
-
+    MacUILib_clearScreen();
     MacUILib_uninit();
-    delete[] Game;
-    delete[] p;
-    delete[] f;
 }

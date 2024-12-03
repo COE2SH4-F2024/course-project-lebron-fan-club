@@ -1,122 +1,218 @@
 #include "Player.h"
+#include "MacUILib.h"
 #include <iostream>
+#include "Food.h"
 
+// Default Constructor
+Player::Player()
+   : player(nullptr), foodlist(nullptr), mainGameMechsRef(nullptr), myDir(STOP), speed(1), rowNums(0), colNums(0)
+{ }
 
-Player::Player(GameMechs* thisGMRef)
+// Parameterized Constructor
+Player::Player(GameMechs* thisGMRef, Food* thisFood)
+   : mainGameMechsRef(thisGMRef), foodlist(thisFood), myDir(STOP), speed(1)
 {
-    playerPos.pos->x = 5;
-    playerPos.pos->y = 10;
-    playerPos.symbol = '^';
-    mainGameMechsRef = thisGMRef;
-    myDir = STOP;
-    
+   player = new objPosArrayList();
 
-    // more actions to be included
+   // Initialize board dimensions
+   rowNums = mainGameMechsRef->getBoardWidth();
+   colNums = mainGameMechsRef->getBoardHeight();
+
+   // Initialize player position (snake starting position in the middle)
+   int startX = rowNums / 2;
+   int startY = colNums / 2;
+
+   char headSymbol = '@';
+   char bodySymbol = '+';
+
+   // Create the initial snake with length 2
+   for (int i = 0; i < 2; i++)
+   {
+       player->insertHead(objPos(startX - i, startY, (i == 0) ? headSymbol : bodySymbol));
+   }
+   headsymbol = '@';
+   bodysymbol = '+';
 }
 
-
+// Destructor
 Player::~Player()
 {
-    
-
+   delete player;
 }
 
-objPos Player::getPlayerPos() const
+// Copy Constructor
+Player::Player(const Player& pp)
 {
-    // return the reference to the playerPos array list
-    return playerPos;
+   mainGameMechsRef = pp.mainGameMechsRef;
+   foodlist = pp.foodlist;
+   myDir = pp.myDir;
+   rowNums = pp.rowNums;
+   colNums = pp.colNums;
+   speed = pp.speed;
+
+   player = new objPosArrayList(*pp.player);
+   headsymbol = pp.headsymbol;
+   bodysymbol = pp.bodysymbol;
 }
 
+// Copy Assignment Operator
+Player& Player::operator=(const Player& pp)
+{
+   if (this != &pp)
+   {
+       delete player;
+
+       mainGameMechsRef = pp.mainGameMechsRef;
+       foodlist = pp.foodlist;
+       myDir = pp.myDir;
+       rowNums = pp.rowNums;
+       colNums = pp.colNums;
+       speed = pp.speed;
+
+       player = new objPosArrayList(*pp.player);
+       headsymbol = pp.headsymbol;
+       bodysymbol = pp.bodysymbol;
+   }
+   return *this;
+}
+
+// Get the player's position list
+objPosArrayList* Player::getPlayerPos() const
+{
+   return player;
+}
+
+// Update the player's direction based on input
 void Player::updatePlayerDir()
 {
-    
-        char input = mainGameMechsRef->getInput();
-        if(input != '\0')
-        {
-            switch(input)
-            {                      
-                case 'w':
-                    if(myDir != DOWN)
-                    {
-                        myDir = UP;
-                        playerPos.symbol = '^';
-                    }
-                    break;
-                case 'a':
-                    if(myDir != RIGHT)
-                    {
-                        myDir = LEFT;
-                        playerPos.symbol = '<';
-                    }
-                    break;
-                case 's':
-                    if(myDir != UP)
-                    {
-                        myDir = DOWN;
-                        playerPos.symbol = 'v';
-                    }
-                    break;
-                case 'd':
-                    if(myDir != LEFT)
-                    {
-                        myDir = RIGHT;
-                        playerPos.symbol = '>';
-                    }
-                    break;
-            }
-            mainGameMechsRef->clearInput();
-        }    
-              
-    
+   if (mainGameMechsRef->getUserInput() != 0) // Check if there's valid input
+   {
+       switch (mainGameMechsRef->getUserInput())
+       {
+       case 32: // Space key: Exit the game
+           mainGameMechsRef->setExitGame();
+           break;
+       case 'w': case 'W': if (myDir != DOWN) myDir = UP; break;
+       case 'a': case 'A': if (myDir != RIGHT) myDir = LEFT; break;
+       case 's': case 'S': if (myDir != UP) myDir = DOWN; break;
+       case 'd': case 'D': if (myDir != LEFT) myDir = RIGHT; break;
+       default:
+           break; // Ignore invalid input
+       }
+       mainGameMechsRef->resetUserInput();
+   }
 }
 
+// Move the player (snake)
 void Player::movePlayer()
 {
-    
-    switch(myDir)
-    {
-        case UP:
-            playerPos.pos->x--;
-            break;
-        case DOWN:
-            playerPos.pos->x++;
-            
-            break;
-        case LEFT:
-            playerPos.pos->y--;
-            
-            break;
-        case RIGHT:
-            playerPos.pos->y++;
-            
-            break;
-        default:
-            break;
-    }
-    
-    if(playerPos.pos->y < 1) playerPos.pos->y = mainGameMechsRef->getBoardSizeY()-2;
-    else if(playerPos.pos->y > mainGameMechsRef->getBoardSizeY()-2) playerPos.pos->y = 1;
-    else if(playerPos.pos->x < 1) playerPos.pos->x = mainGameMechsRef->getBoardSizeX()-2;
-    else if(playerPos.pos->x > mainGameMechsRef->getBoardSizeX()-2) playerPos.pos->x= 1;
-    
-    
-    
-}
-Player::Player(const Player &other)
-{
-    playerPos=other.playerPos;
-    myDir = other.myDir;
-    mainGameMechsRef = other.mainGameMechsRef;
+   int x = player->getHeadElement().pos->x;
+   int y = player->getHeadElement().pos->y;
+
+   // Remove the head and add it as part of the body
+   player->removeHead();
+   player->insertHead(objPos(x, y, bodysymbol)); // Make the head a body segment
+
+   // Update the head position based on direction
+   switch (myDir)
+   {
+   case UP:    x--; break;
+   case DOWN:  x++; break;
+   case LEFT:  y--; break;
+   case RIGHT: y++; break;
+   default:    break; // No movement
+   }
+
+   // Wraparound logic
+   if (x > rowNums - 2) x = 1;
+   if (x < 1) x = rowNums - 2;
+   if (y > colNums - 2) y = 1;
+   if (y < 1) y = colNums - 2;
+
+   // Insert the new head
+   objPos newHead(x, y, headsymbol);
+   player->insertHead(newHead);
+
+   // Check if food is consumed
+   if (checkFoodConsumption())
+   {
+       increasePlayerLength();
+       mainGameMechsRef->updateScore(player->getSize());
+       foodlist->generateFood(*player, rowNums, colNums);
+   }
+   else
+   {
+       player->removeTail(); // Remove tail if no food is eaten
+   }
+
+   // Check for self-collision
+   if (checkselfcollision())
+   {
+       mainGameMechsRef->setLoseGame();
+   }
+
+   // Check for win condition
+   if (player->getSize() > 50)
+   {
+       mainGameMechsRef->setWinGame();
+   }
 }
 
-Player& Player::operator=(const Player &other)
+// Check if the player consumes food
+bool Player::checkFoodConsumption()
 {
-    if(this!=&other)
-    {
-        this->playerPos=other.playerPos;
-        this->myDir=other.myDir;
-        this->mainGameMechsRef = other.mainGameMechsRef;
-    }
-    return *this;
+   objPos head = player->getHeadElement();
+   for (int i = 0; i < FOOD_SPAWN_CAP; i++)
+   {
+       objPos food = foodlist->getFoodPos(i);
+       if (head.pos->x == food.pos->x && head.pos->y == food.pos->y)
+       {
+           return true;
+       }
+   }
+   return false;
 }
-// More methods to be added
+
+// Increase the player's length
+void Player::increasePlayerLength()
+{
+   // Add a new tail segment
+   objPos newTail = player->getTailElement();
+   player->insertTail(newTail);
+}
+
+// Check if the player collides with itself
+bool Player::checkselfcollision()
+{
+   objPos head = player->getHeadElement();
+   for (int i = 2; i < player->getSize(); i++) // Start from index 1 to skip the head
+   {
+       objPos segment = player->getElement(i);
+       if (head.pos->x == segment.pos->x && head.pos->y == segment.pos->y)
+       {
+           return true; // Collision detected
+       }
+   }
+   return false;
+}
+
+// Get the player's speed
+int Player::getSpeed() const
+{
+   return speed;
+}
+
+// Set the player's speed
+void Player::setSpeed(int s)
+{
+   if (s >= 1 && s <= 5)
+   {
+       speed = s;
+   }
+}
+
+// Get the food reference
+Food* Player::getFoodlist() const
+{
+   return foodlist;
+}
