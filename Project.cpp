@@ -140,21 +140,21 @@ void DrawScreen()
     {
         MacUILib_printf("Current Score: %d\n", gameMechanics->getCurrentScore());
         MacUILib_printf("Control the snake with 'W', 'A', 'S', 'D'.\n");
-        MacUILib_printf("Special blinking food grants bonus points!\n");
+        MacUILib_printf("Special Food = More points!!!\n");
     }
     else if (gameMechanics->hasLostGame())
     {
-        MacUILib_printf("Oh no! You lost the game. Better luck next time!\n");
-        MacUILib_printf("Your final score is: %d\n", gameMechanics->getCurrentScore());
+        MacUILib_printf("Uh-Oh! Better luck next time!\n");
+        MacUILib_printf("Final score: %d\n", gameMechanics->getCurrentScore());
     }
     else if (gameMechanics->hasWonGame())
     {
-        MacUILib_printf("You did it! Victory is yours!\n");
-        MacUILib_printf("Amazing job! Your final score: %d\n", gameMechanics->getCurrentScore());
+        MacUILib_printf("Great job! You won!\n");
+        MacUILib_printf("Final score: %d\n", gameMechanics->getCurrentScore());
     }
     else if (gameMechanics->hasExitedGame())
     {
-        MacUILib_printf("You chose to exit. Thanks for playing!\n");
+        MacUILib_printf("Thanks for playing!\n");
     }
 }
 void LoopDelay(void){
@@ -164,8 +164,8 @@ void LoopDelay(void){
 void CleanUp()
 {
     int finalScore = gameMechanics->getCurrentScore();
-    MacUILib_printf("Thank you for playing the Snake game!\n");
-    MacUILib_printf("Your final score: %d\n", finalScore);
+    MacUILib_printf("Thank you for playing!\n");
+    MacUILib_printf("Final score: %d\n", finalScore);
 
     // Free resources
     delete gameMechanics;

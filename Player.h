@@ -21,35 +21,32 @@ public:
     Player& operator=(const Player& other);  // Copy assignment operator
 
     // Player Movement and Behavior
-    objPosArrayList* getPlayerPos() const;   // Get snake's current positions
-    void updatePlayerDir();                  // Update direction based on input
-    void movePlayer();                       // Move the player (snake)
+    objPosArrayList* getPlayerPos() const;   // Get current pos
+    void updatePlayerDir();                  // Update direction
+    void movePlayer();                       // Move snake
     bool checkFoodConsumption();             // Check if food is consumed
-    void increasePlayerLength();             // Increase snake length
-    bool checkselfcollision();               // Check for collision with itself
+    void increasePlayerLength();             // Increase snake size
+    bool checkselfcollision();               // Check if snake eats itself
 
     // Speed Control
     int getSpeed() const; 
     void setSpeed(int speed);        
 
     // Food Management
-    Food* getFoodlist() const;               // Get reference to the food object
+    Food* getFoodlist() const;               // Get food object reference
 
 private:
-    // Snake body and attributes
-    objPosArrayList* player;   // List of snake body positions
-    char headsymbol;           // Symbol representing the snake's head
-    char bodysymbol;           // Symbol representing the snake's body
-    Direction myDir;           // Current movement direction
+    objPosArrayList* player;   // List of snake body pos
+    char headsymbol;           // Snake head
+    char bodysymbol;           // Snake body
+    Direction myDir;           // Movement direction
 
-    // References to other game components
     Food* foodlist;            // Pointer to the food object
     GameMechs* mainGameMechsRef; // Pointer to game mechanics
 
-    // Board dimensions and speed
-    int rowNums;               // Number of rows (board height)
-    int colNums;               // Number of columns (board width)
-    int speed;                 // Speed of the snake
+    int rowNums;               // board height
+    int colNums;               // board width
+    int speed;                 // snake speed
 };
 
 #endif

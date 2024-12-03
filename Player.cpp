@@ -31,7 +31,7 @@ Player::Player(GameMechs* thisGMRef, Food* thisFood)
        player->insertHead(objPos(startX - i, startY, (i == 0) ? headSymbol : bodySymbol));
    }
    headsymbol = '@';
-   bodysymbol = '+';
+   bodysymbol = 'o';
 }
 
 // Destructor
