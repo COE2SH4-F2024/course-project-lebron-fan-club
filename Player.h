@@ -4,37 +4,49 @@
 #include "GameMechs.h"
 #include "objPos.h"
 #include "objPosArrayList.h"
+#include "Food.h"
+#include <iostream>
 
 class Player
-{
-    // Construct the remaining declaration from the project manual.
+{   
+public:
+    // Enum for direction states
+    enum Direction { UP, DOWN, LEFT, RIGHT, STOP }; 
 
-    // Only some sample members are included here
+    // Constructors and Destructor
+    Player(); 
+    Player(GameMechs* gameMechanics, Food* food);
+    ~Player(); 
+    Player(const Player& other);             // Copy constructor
+    Player& operator=(const Player& other);  // Copy assignment operator
 
-    // You will include more data members and member functions to complete your design.
+    // Player Movement and Behavior
+    objPosArrayList* getPlayerPos() const;   // Get current pos
+    void updatePlayerDir();                  // Update direction
+    void movePlayer();                       // Move snake
+    bool checkFoodConsumption();             // Check if food is consumed
+    void increasePlayerLength();             // Increase snake size
+    bool checkselfcollision();               // Check if snake eats itself
 
-    
-    public:
-        enum Dir {UP, DOWN, LEFT, RIGHT, STOP};  // This is the direction state
+    // Speed Control
+    int getSpeed() const; 
+    void setSpeed(int speed);        
 
-        Player(GameMechs* thisGMRef);
-        Player(const Player &other);
-        Player &operator=(const Player &other);
-        ~Player();
+    // Food Management
+    Food* getFoodlist() const;               // Get food object reference
 
-        objPos getPlayerPos() const; // Upgrade this in iteration 3.       
-        void updatePlayerDir();
-        void movePlayer();
+private:
+    objPosArrayList* player;   // List of snake body pos
+    char headsymbol;           // Snake head
+    char bodysymbol;           // Snake body
+    Direction myDir;           // Movement direction
 
+    Food* foodlist;            // Pointer to the food object
+    GameMechs* mainGameMechsRef; // Pointer to game mechanics
 
-        // More methods to be added here
-
-    private:
-        objPos playerPos; // Upgrade this in iteration 3.       
-        enum Dir myDir;
-
-        // Need a reference to the Main Game Mechanisms
-        GameMechs* mainGameMechsRef;
+    int rowNums;               // board height
+    int colNums;               // board width
+    int speed;                 // snake speed
 };
 
 #endif

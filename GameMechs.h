@@ -11,40 +11,39 @@ using namespace std;
 
 class GameMechs
 {
-    private:
-        char input;
-        bool exitFlag;
-        bool loseFlag;
-        int score;
+private:
+    char userInput;     
+    bool hasExited;     
+    bool hasLost;       
+    bool hasWon;       
+    int currentScore;   
 
-        int boardSizeX;
-        int boardSizeY;
+    int boardWidth;     
+    int boardHeight;    
 
-        objPos food;
+public:
+    GameMechs();
+    GameMechs(int width, int height);
+    ~GameMechs(); // Destructor
 
-    public:
-        GameMechs();
-        GameMechs(int boardX, int boardY);
-        ~GameMechs(); // is this one needed at all? Why or why not?
-        GameMechs(const GameMechs &other);
-        GameMechs &operator=(const GameMechs &other);
-        
-        bool getExitFlagStatus() const; 
-        void setExitTrue();
-        bool getLoseFlagStatus() const;
-        void setLoseFlag();
+    bool hasExitedGame() const;   
+    void setExitGame();           
 
-        char getInput() const;
-        void setInput(char this_input);
-        void clearInput();
+    bool hasLostGame() const;     
+    void setLoseGame();           
 
-        int getBoardSizeX() const;
-        int getBoardSizeY() const;
-        
-        int getScore() const;
-        void incrementScore();
-        
-        // More methods should be added here
+    bool hasWonGame() const;      
+    void setWinGame();            
+
+    char getUserInput() const;    
+    void setUserInput(char input); 
+    void resetUserInput();        
+
+    int getBoardWidth() const;    
+    int getBoardHeight() const;   
+
+    int getCurrentScore() const;  
+    void updateScore(int currentLength); 
 };
 
 #endif

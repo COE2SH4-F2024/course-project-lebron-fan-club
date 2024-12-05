@@ -1,103 +1,96 @@
+#include <iostream>
 #include "GameMechs.h"
-#include "MacUILib.h"
+
 GameMechs::GameMechs()
 {
-    boardSizeX = 10;
-    boardSizeY = 20;
-    exitFlag = false;
-    loseFlag = false;
-    score = 0;
+    userInput = 0;
+    hasExited = false;
+    hasLost = false;
+    hasWon = false; // Initialize win flag
+    currentScore = 0;
+
+    boardWidth = 30;
+    boardHeight = 15;
 }
 
-GameMechs::GameMechs(int boardX, int boardY)
+GameMechs::GameMechs(int width, int height)
 {
-    boardSizeX = boardX;
-    boardSizeY = boardY;
-    exitFlag = false;
-    loseFlag = false;
-    score = 0;
+    userInput = 0;
+    hasExited = false;
+    hasLost = false;
+    hasWon = false; // Initialize win flag
+    currentScore = 0;
+
+    boardWidth = width;
+    boardHeight = height;
 }
 
-// do you need a destructor?
 GameMechs::~GameMechs()
 {
-    
+    // No dynamic memory to free
 }
-GameMechs::GameMechs(const GameMechs &other)
+
+bool GameMechs::hasExitedGame() const
 {
-    boardSizeX = other.boardSizeX;
-    boardSizeY = other.boardSizeY;
-    exitFlag = other.exitFlag;
-    loseFlag = other.exitFlag;
-    score = other.score;
+    return hasExited;
 }
 
-GameMechs& GameMechs::operator=(const GameMechs &other)
+void GameMechs::setExitGame()
 {
-    this->boardSizeX = other.boardSizeX;
-    this->boardSizeY = other.boardSizeY;
-    this->exitFlag = other.exitFlag;
-    this->loseFlag = other.exitFlag;
-    this->score = other.score;
+    hasExited = true;
 }
 
-bool GameMechs::getExitFlagStatus() const
+bool GameMechs::hasLostGame() const
 {
-    return exitFlag;
+    return hasLost;
 }
 
-bool GameMechs::getLoseFlagStatus() const
+void GameMechs::setLoseGame()
 {
-    return loseFlag;
+    hasLost = true;
 }
-    
 
-char GameMechs::getInput() const
+bool GameMechs::hasWonGame() const
 {
-    
-    
-    return input;
+    return hasWon;
 }
 
-int GameMechs::getScore() const
+void GameMechs::setWinGame()
 {
-    return score;
+    hasWon = true;
 }
 
-void GameMechs::incrementScore()
+char GameMechs::getUserInput() const
 {
-    score++;
+    return userInput;
 }
 
-int GameMechs::getBoardSizeX() const
+void GameMechs::setUserInput(char input)
 {
-    return boardSizeX;
+    userInput = input;
 }
 
-int GameMechs::getBoardSizeY() const
+void GameMechs::resetUserInput()
 {
-    return boardSizeY;
+    userInput = 0;
 }
 
-
-void GameMechs::setExitTrue()
+int GameMechs::getBoardWidth() const
 {
-    exitFlag = true;
+    return boardWidth;
 }
 
-void GameMechs::setLoseFlag()
+int GameMechs::getBoardHeight() const
 {
-    loseFlag = true;
+    return boardHeight;
 }
 
-void GameMechs::setInput(char this_input)
+int GameMechs::getCurrentScore() const
 {
-    input = this_input;
+    return currentScore;
 }
 
-void GameMechs::clearInput()
+void GameMechs::updateScore(int currentLength)
 {
-    input = '\0';
+    currentScore = currentLength - 1;
 }
-
-// More methods should be added here
